@@ -19,18 +19,17 @@ X_train, y_train, X_test, y_test = cifar10.load_ciaf10(cifar_root_dir)
 X_train = X_train.astype(np.float32)
 X_test = X_test.astype(np.float32)
 
+# pre-processing: mean image
+mean_image = X_train.mean(axis=0)
+std_image = X_train.std(axis=0)
+X_train -= mean_image/X_train.shape[0]
+X_test -= mean_image/X_train.shape[0]
+X_train /= std_image/X_train.shape[0]
+X_test /= std_image/X_train.shape[0]
+
 # Reshape the training data such that we have one image per row
 X_train = np.reshape(X_train, (X_train.shape[0], -1))
 X_test = np.reshape(X_test, (X_test.shape[0], -1))
-
-# ? added /std
-# pre-processing: subtract mean image
-mean_image = np.mean(X_train, axis=0)
-std_image = np.std(X_train, axis=0)
-X_test -= mean_image
-X_train /= std_image
-X_test /= std_image
-
 
 # Bias trick - add 1 to each training example
 X_train = np.hstack([X_train, np.ones((X_train.shape[0], 1))])
@@ -55,11 +54,11 @@ input_size_flattened = reduce((lambda a, b: a * b), X_train[0].shape)
 # the batch size
 batch_size = 256
 # number of training steps per training process
-train_epochs = 5
+train_epochs = 7
 
 # 0.0000001 0.000000001
 lr = 1e-2  #1e-2 change the value - hyperparameter tuning
-reg_strength = 1e-3  #1e-3  change the value - hyperparameter tuning
+reg_strength = 1e-4  #1e-3  change the value - hyperparameter tuning
 
 cls = SoftmaxClassifier(input_shape=input_size_flattened, num_classes=cifar10.NUM_CLASSES)
 history = cls.fit(X_train, y_train, mean_image, lr=lr, reg_strength=reg_strength,

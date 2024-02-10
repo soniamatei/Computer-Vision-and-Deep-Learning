@@ -52,7 +52,6 @@ class SoftmaxClassifier:
         # 1. compute the prediction by taking the argmax of the class scores
         # you might find torch.argmax useful here.
         # think about on what dimension (dim parameter) you should apply this operation
-        # ? the coef a means
         scores = torch.mm(X, self.W)  # or do X @ self.W
         label = torch.argmax(scores, dim=1)
 
@@ -67,9 +66,7 @@ class SoftmaxClassifier:
         return loss
 
     def l2_regularization(self):
-        copy = self.W.clone().detach()
-        #? not copy in sum
-        return torch.sum(self.W)
+        return torch.sum(self.W**2)
 
     def log_softmax(self, x: torch.Tensor) -> torch.Tensor:
         c = torch.reshape(torch.max(x, dim=1).values, (x.shape[0], 1))
@@ -90,8 +87,6 @@ class SoftmaxClassifier:
             if epoch > 3:
                 lr = lr * 0.1
                 reg_strength *= 0.1
-            # if epoch > 5:
-            #     lr = lr * 0.1
             for ii in range((X_train.shape[0] - 1) // bs + 1):  # in batches of size bs
                 # TODO your code here
                 start_idx = ii * bs  # we are ii batches in, each of size bs
@@ -101,8 +96,6 @@ class SoftmaxClassifier:
                 xb = X_train[start_idx:end_idx]
                 yb = y_train[start_idx:end_idx]  # ! a 1d array with labels
 
-                # plt.imshow(xb[0, :-1].reshape((32, 32, 3)))
-                # plt.show()
                 # apply the linear layer on the training examples from the current batch
                 pred = torch.mm(xb, self.W)
                 pred = self.log_softmax(pred)
